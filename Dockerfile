@@ -1,19 +1,21 @@
-# Dockerfile
 FROM python:3.11-slim
+
 WORKDIR /app
 
-# Install dependencies for building and git
+# Install git and build tools
 RUN apt-get update && \
     apt-get install -y git build-essential && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy local app
+# Copy app
 COPY agent.py .
 
-# Install OTEL SDK
+# Install OpenTelemetry
 RUN pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp
 
-# Install Strands SDK from GitHub via SSH
-RUN git clone git@github.com:strands-ai/strands-python-sdk.git /tmp/strands && \
+# Install Strands SDK via HTTPS with token
+# Replace YOUR_GITHUB_TOKEN with a token that has repo access
+ARG GITHUB_TOKEN
+RUN git clone https://$GITHUB_TOKEN@github.com/strands-ai/strands-python-sdk.git /tmp/strands && \
     pip install /tmp/strands && \
     rm -rf /tmp/strands
