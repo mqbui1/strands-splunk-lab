@@ -1,17 +1,19 @@
-# Use Python 3.11 slim
+# Dockerfile
 FROM python:3.11-slim
-
-# Set working directory
 WORKDIR /app
 
-# Install dependencies
-RUN pip install --no-cache-dir \
-    opentelemetry-sdk \
-    opentelemetry-exporter-otlp \
-    strands
+# Install dependencies for building and git
+RUN apt-get update && \
+    apt-get install -y git build-essential && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy your agent code
+# Copy local app
 COPY agent.py .
 
-# Run the agent
-CMD ["python", "agent.py"]
+# Install OTEL SDK
+RUN pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp
+
+# Install Strands SDK from GitHub via SSH
+RUN git clone git@github.com:strands-ai/strands-python-sdk.git /tmp/strands && \
+    pip install /tmp/strands && \
+    rm -rf /tmp/strands
