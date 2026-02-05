@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   splunk-otel-collector:
-    image: public.ecr.aws/splunk/otelcol-contrib:0.144.0
+    image: splunk/otelcol-contrib:0.144.0  # <-- Docker Hub instead of public ECR
     ports:
-      - "4317:4317"
-      - "4318:4318"
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
 
   strands-agent:
     build: .
