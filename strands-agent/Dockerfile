@@ -1,10 +1,9 @@
 FROM python:3.11-slim
 
 WORKDIR /app
-
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
 COPY agent.py .
+
+# Install strands and opentelemetry
+RUN pip install --no-cache-dir strands opentelemetry-sdk opentelemetry-exporter-otlp
 
 CMD ["python", "agent.py"]
