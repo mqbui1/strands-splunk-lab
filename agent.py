@@ -1,26 +1,22 @@
 # agent.py
-from strands import Client  # PyPI SDK
+from strands.agent import Agent  # GitHub SDK
 from opentelemetry import trace
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
 # Configure OTEL
-resource = Resource.create({"service.name": "strands-demo-agent"})
-trace.set_tracer_provider(TracerProvider(resource=resource))
+resource = Resource.create({"service.name": "strands-agent"})
+provider = TracerProvider(resource=resource)
+processor = BatchSpanProcessor(OTLPSpanExporter(endpoint="http://splunk-otel-collector:4317", insecure=True))
+provider.add_span_processor(processor)
+trace.set_tracer_provider(provider)
 tracer = trace.get_tracer(__name__)
 
-# OTLP Exporter (Docker service name for OTEL Collector)
-otlp_exporter = OTLPSpanExporter(
-    endpoint="http://splunk-otel-collector:4317",
-    insecure=True
-)
-span_processor = BatchSpanProcessor(otlp_exporter)
-trace.get_tracer_provider().add_span_processor(span_processor)
+# Create Strands Agent
+agent = Agent()
 
-# Strands SDK
-client = Client()
-with tracer.start_as_current_span("strands-demo-span"):
-    response = client.send("Hello from Strands Agent!")
-    print("Strands response:", response)
+with tracer.start_as_current_span("strands-operation"):
+    response = agent.send("Hello from Strands Agent!")
+    print("Response from Strands:", response)
