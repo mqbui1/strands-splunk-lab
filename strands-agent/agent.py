@@ -1,51 +1,30 @@
-import time
-import logging
-
+import asyncio
 from strands import Agent
-from strands.telemetry import StrandsTelemetry
+from strands.models.mock import MockModel  # Use a local mock instead of AWS Bedrock
+from strands.telemetry import configure_tracing, configure_metrics
 
-
-#
-# logging
-#
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("strands-lab")
-
-
-#
-# telemetry setup
-#
-telemetry = StrandsTelemetry()
-
-telemetry.setup_otlp_exporter()
-telemetry.setup_meter(enable_otlp_exporter=True)
-
-
-#
-# CRITICAL: force mock model
-#
-agent = Agent(
-    name="otel-test-agent",
-    model="mock",  # prevents Bedrock usage
+# --- Configure OpenTelemetry ---
+# These should match your collector
+configure_tracing(
+    otlp_endpoint="http://splunk-otel-collector:4318",
+    service_name="strands-agent"
 )
 
+configure_metrics(
+    otlp_endpoint="http://splunk-otel-collector:4318",
+    service_name="strands-agent"
+)
 
-logger.info("Agent initialized successfully")
+# --- Use Mock Model for testing ---
+model = MockModel()
 
+# --- Create agent ---
+agent = Agent(model=model)
 
-#
-# generate telemetry
-#
-counter = 0
+async def main():
+    # Example request to the agent
+    response = await agent.async_call("Test OpenTelemetry instrumentation")
+    print("Agent response:", response)
 
-while True:
-
-    counter += 1
-
-    logger.info(f"Sending request #{counter}")
-
-    response = agent("Test OpenTelemetry instrumentation")
-
-    logger.info(f"Response: {response}")
-
-    time.sleep(5)
+if __name__ == "__main__":
+    asyncio.run(main())
