@@ -1,14 +1,10 @@
-version: '3.8'
-
 services:
   splunk-otel-collector:
-    image: public.ecr.aws/splunk/otelcol:0.144.0
-    
+    image: public.ecr.aws/splunk/otelcol-contrib:0.144.0
+    container_name: splunk-otel-collector
     ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-
-  strands-agent:
-    build: .
-    depends_on:
-      - splunk-otel-collector
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+    environment:
+      - SPLUNK_ACCESS_TOKEN=${ACCESS_TOKEN}
+      - SPLUNK_REALM=${REALM}
