@@ -1,5 +1,5 @@
 import os
-from strands.agent import Agent  # Use Agent class
+from strands import Agent  # Correct import
 
 # OpenTelemetry imports
 from opentelemetry import trace, metrics
@@ -20,7 +20,7 @@ resource = Resource.create(attributes={
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer = trace.get_tracer(__name__)
 
-# OTEL endpoints (use Docker Compose service name)
+# OTEL endpoints (Docker Compose service name)
 OTEL_TRACES_ENDPOINT = os.getenv(
     "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", "http://splunk-otel-collector:4317"
 )
