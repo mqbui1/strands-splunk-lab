@@ -1,21 +1,30 @@
-# agent.py
 import time
-from strands import Client
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 
-# Initialize Strands client
-client = Client()
+from strands import StrandsAgent  # assuming this is the SDK import
 
-print("Strands agent started and connected...")
+# --- OpenTelemetry Setup ---
+trace.set_tracer_provider(TracerProvider())
+tracer = trace.get_tracer(__name__)
 
-# Example telemetry or task loop
+otlp_exporter = OTLPSpanExporter(endpoint="http://otel-collector:4317", insecure=True)
+trace.get_tracer_provider().add_span_processor(BatchSpanProcessor(otlp_exporter))
+
+# --- Strands Agent Setup ---
+agent = StrandsAgent()
+agent.start()
+
+print("Strands agent started. Sending periodic telemetry...")
+
+# --- Main loop to keep container alive ---
 try:
     while True:
-        # TODO: replace this with actual telemetry sending if needed
-        print("Agent running, sending telemetry...")
-        # Example: client.send_metric(...)  # uncomment if you have real metrics
-
-        # Sleep for 10 seconds before next loop iteration
-        time.sleep(10)
-
+        with tracer.start_as_current_span("heartbeat"):
+            print("Sending heartbeat span...")
+        time.sleep(5)
 except KeyboardInterrupt:
-    print("Agent stopping gracefully...")
+    print("Stopping agent...")
+    agent.stop()
