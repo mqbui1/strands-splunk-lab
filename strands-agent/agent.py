@@ -1,81 +1,51 @@
 import time
 import logging
-import random
 
 from strands import Agent
 from strands.telemetry import StrandsTelemetry
 
-#
-# Setup Python logging
-#
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s"
-)
 
+#
+# logging
+#
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("strands-lab")
 
 
 #
-# Initialize OpenTelemetry via Strands
+# telemetry setup
 #
 telemetry = StrandsTelemetry()
 
-# enable OTLP trace exporter
 telemetry.setup_otlp_exporter()
-
-# enable metrics exporter
 telemetry.setup_meter(enable_otlp_exporter=True)
 
 
 #
-# Create a simple local Strands agent
+# CRITICAL: force mock model
 #
 agent = Agent(
-    name="test-strands-agent",
-    system_prompt="You are a helpful assistant for OpenTelemetry testing.",
-    model="mock"  # uses built-in mock model, no external dependency
+    name="otel-test-agent",
+    model="mock",  # prevents Bedrock usage
 )
 
 
-logger.info("Strands agent started successfully")
+logger.info("Agent initialized successfully")
 
 
 #
-# Generate telemetry continuously
+# generate telemetry
 #
-request_count = 0
+counter = 0
 
 while True:
 
-    try:
+    counter += 1
 
-        request_count += 1
+    logger.info(f"Sending request #{counter}")
 
-        logger.info("Sending request #%s", request_count)
+    response = agent("Test OpenTelemetry instrumentation")
 
-        #
-        # This generates a TRACE automatically
-        #
-        response = agent(
-            f"Explain OpenTelemetry in one sentence. Request #{request_count}"
-        )
+    logger.info(f"Response: {response}")
 
-        #
-        # This generates LOG telemetry
-        #
-        logger.info("Received response: %s", response)
-
-        #
-        # Generate some additional telemetry variation
-        #
-        if random.random() > 0.7:
-            logger.warning("Simulated warning condition occurred")
-
-        time.sleep(5)
-
-    except Exception as e:
-
-        logger.exception("Error during agent execution: %s", e)
-
-        time.sleep(5)
+    time.sleep(5)
