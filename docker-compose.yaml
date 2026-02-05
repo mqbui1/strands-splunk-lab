@@ -1,40 +1,20 @@
 version: "3.9"
 
 services:
-
   splunk-otel-collector:
-    image: quay.io/signalfx/splunk-otel-collector:latest
+    image: ghcr.io/signalfx/splunk-otel-collector:0.144.0
     container_name: splunk-otel-collector
-    command: ["--config=/etc/otel/config.yaml"]
-    volumes:
-      - ./collector-config.yaml:/etc/otel/config.yaml
-    environment:
-      SPLUNK_ACCESS_TOKEN: ${SPLUNK_ACCESS_TOKEN}
-      SPLUNK_REALM: ${SPLUNK_REALM}
     ports:
-      - "4317:4317"
-      - "4318:4318"
+      - "4317:4317" # OTLP gRPC (traces)
+      - "4318:4318" # OTLP HTTP (metrics/logs)
+    volumes:
+      - ./otel-config.yaml:/etc/otel/config.yaml:ro
+    command: ["--config", "/etc/otel/config.yaml"]
 
   strands-agent:
-    build: ./strands-agent
+    build: .
     container_name: strands-agent
-
-    environment:
-    
-      OTEL_SERVICE_NAME: strands-agent
-    
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://splunk-otel-collector:4318
-    
-      OTEL_EXPORTER_OTLP_PROTOCOL: http/protobuf
-    
-      OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://splunk-otel-collector:4318/v1/traces
-      OTEL_EXPORTER_OTLP_METRICS_ENDPOINT: http://splunk-otel-collector:4318/v1/metrics
-      OTEL_EXPORTER_OTLP_LOGS_ENDPOINT: http://splunk-otel-collector:4318/v1/logs
-    
-      OTEL_TRACES_EXPORTER: otlp
-      OTEL_METRICS_EXPORTER: otlp
-      OTEL_LOGS_EXPORTER: otlp
-
-
     depends_on:
       - splunk-otel-collector
+    environment:
+      STRANDS_MODEL: "local"  # just a marker
