@@ -12,7 +12,7 @@ services:
     command: ["--config", "/etc/otel/config.yaml"]
 
   strands-agent:
-    build: .
+    build: /strands-agent
     container_name: strands-agent
     depends_on:
       - splunk-otel-collector
