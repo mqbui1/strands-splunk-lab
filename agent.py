@@ -1,5 +1,5 @@
 import os
-from strands import strands
+from strands.agent import Agent  # Use Agent class
 
 # OpenTelemetry imports
 from opentelemetry import trace, metrics
@@ -20,17 +20,22 @@ resource = Resource.create(attributes={
 trace.set_tracer_provider(TracerProvider(resource=resource))
 tracer = trace.get_tracer(__name__)
 
-# Configure OTLP exporter for traces
-otlp_trace_exporter = OTLPSpanExporter(
-    endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4317"),
-    insecure=True
+# OTEL endpoints (use Docker Compose service name)
+OTEL_TRACES_ENDPOINT = os.getenv(
+    "OTEL_EXPORTER_OTLP_TRACES_ENDPOINT", "http://splunk-otel-collector:4317"
 )
+OTEL_METRICS_ENDPOINT = os.getenv(
+    "OTEL_EXPORTER_OTLP_METRICS_ENDPOINT", "http://splunk-otel-collector:4318"
+)
+
+# Configure OTLP exporter for traces
+otlp_trace_exporter = OTLPSpanExporter(endpoint=OTEL_TRACES_ENDPOINT, insecure=True)
 span_processor = BatchSpanProcessor(otlp_trace_exporter)
 trace.get_tracer_provider().add_span_processor(span_processor)
 
 # --- Configure Metrics ---
 metric_reader = PeriodicExportingMetricReader(
-    OTLPMetricExporter(endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318"), insecure=True)
+    OTLPMetricExporter(endpoint=OTEL_METRICS_ENDPOINT, insecure=True)
 )
 metrics.set_meter_provider(MeterProvider(resource=resource, metric_readers=[metric_reader]))
 meter = metrics.get_meter(__name__)
@@ -42,11 +47,14 @@ request_counter = meter.create_counter(
     unit="1"
 )
 
+# --- Strands Agent ---
+agent = Agent()
+
 # --- Main Application Logic ---
 if __name__ == "__main__":
     with tracer.start_as_current_span("strands_request"):
         # Send a message to Strands
-        response = strands("Hello from Strands Agent!")
+        response = agent.complete("Hello from Strands Agent!")
         print("Agent response:", response)
 
         # Record metric
