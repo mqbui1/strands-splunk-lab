@@ -4,6 +4,8 @@ WORKDIR /app
 
 COPY agent.py .
 
-RUN pip install --no-cache-dir strands opentelemetry-sdk opentelemetry-exporter-otlp
-
-CMD ["python", "agent.py"]
+# Install OTEL and Strands SDK directly from GitHub
+RUN pip install --no-cache-dir \
+    opentelemetry-sdk \
+    opentelemetry-exporter-otlp \
+    git+https://github.com/strands-ai/strands-python-sdk.git
