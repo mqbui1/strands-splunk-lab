@@ -1,10 +1,17 @@
+version: "3.9"
+
 services:
   splunk-otel-collector:
-    image: public.ecr.aws/splunk/otelcol-contrib:0.144.0
-    container_name: splunk-otel-collector
+    image: otel/opentelemetry-collector-contrib:0.144.0
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./otel-config.yaml:/etc/otel/config.yaml:ro
     ports:
       - "4317:4317"  # OTLP gRPC
       - "4318:4318"  # OTLP HTTP
-    environment:
-      - SPLUNK_ACCESS_TOKEN=${ACCESS_TOKEN}
-      - SPLUNK_REALM=${REALM}
+
+  strands-agent:
+    build: .
+    depends_on:
+      - splunk-otel-collector
