@@ -1,18 +1,13 @@
-version: "3.9"
+version: '3.8'
 
 services:
   splunk-otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.144.0
-    container_name: splunk-otel-collector
-    command: ["--config=/etc/otel/config.yaml"]
-    volumes:
-      - ./otel-config.yaml:/etc/otel/config.yaml:ro
+    image: public.ecr.aws/splunk/otelcol-contrib:0.144.0
     ports:
       - "4317:4317"
       - "4318:4318"
 
   strands-agent:
     build: .
-    container_name: strands-agent
     depends_on:
       - splunk-otel-collector
