@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+
+  splunk-otel-collector:
+    image: quay.io/signalfx/splunk-otel-collector:latest
+    container_name: splunk-otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./collector-config.yaml:/etc/otel/config.yaml
+    environment:
+      SPLUNK_ACCESS_TOKEN: ${SPLUNK_ACCESS_TOKEN}
+      SPLUNK_REALM: ${SPLUNK_REALM}
+    ports:
+      - "4317:4317"
+      - "4318:4318"
+
+  strands-agent:
+    build: ./strands-agent
+    container_name: strands-agent
+
+    environment:
+
+      OTEL_SERVICE_NAME: strands-agent-lab
+
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://splunk-otel-collector:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: otlp
+      OTEL_LOGS_EXPORTER: otlp
+
+      OTEL_RESOURCE_ATTRIBUTES: >
+        deployment.environment=lab,
+        service.version=1.0
+
+      OTEL_PYTHON_LOGGING_AUTO_INSTRUMENTATION_ENABLED: "true"
+
+    depends_on:
+      - splunk-otel-collector
