@@ -4,23 +4,15 @@ receivers:
       grpc:
       http:
 
-processors:
-  batch:
-
 exporters:
   logging:
     loglevel: debug
-  otlp:
-    endpoint: "http://host.docker.internal:4318" # metrics/logs
-    insecure: true
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, otlp]
+      exporters: [logging]
     metrics:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [logging, otlp]
+      exporters: [logging]
