@@ -2,18 +2,16 @@ version: "3.9"
 
 services:
   otel-collector:
-    image: public.ecr.aws/splunk/otelcol-contrib:0.144.0
+    image: public.ecr.aws/splunk/otelcol:0.144.0
     container_name: otel-collector
     ports:
-      - "4317:4317"
-      - "4318:4318"
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
     restart: unless-stopped
 
   strands-agent:
     build:
       context: .
-      args:
-        GITHUB_TOKEN: ${GITHUB_TOKEN}   # Pass token as build arg
     container_name: strands-agent
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
