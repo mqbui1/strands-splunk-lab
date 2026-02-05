@@ -1,5 +1,5 @@
 import os
-from strands import Agent  # Correct import
+from strands import Client  # <-- new correct import
 
 # OpenTelemetry imports
 from opentelemetry import trace, metrics
@@ -47,15 +47,15 @@ request_counter = meter.create_counter(
     unit="1"
 )
 
-# --- Strands Agent ---
-agent = Agent()
+# --- Strands Client ---
+client = Client()  # <-- new usage
 
 # --- Main Application Logic ---
 if __name__ == "__main__":
     with tracer.start_as_current_span("strands_request"):
-        # Send a message to Strands
-        response = agent.complete("Hello from Strands Agent!")
-        print("Agent response:", response)
+        # Send a message
+        response = client.complete("Hello from Strands Agent!")
+        print("Client response:", response)
 
         # Record metric
         request_counter.add(1)
