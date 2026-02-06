@@ -2,7 +2,7 @@ import time
 import os
 
 from strands import Agent
-from strands.models.mock import MockModel
+from strands.models.echo import EchoModel
 
 # OpenTelemetry imports
 from opentelemetry import trace
@@ -38,15 +38,15 @@ tracer = trace.get_tracer("strands-agent-demo")
 
 
 # ----------------------------
-# Create Strands agent with MockModel
+# Create agent using EchoModel
 # ----------------------------
 
 agent = Agent(
     name="splunk-strands-agent",
-    model=MockModel()
+    model=EchoModel()
 )
 
-print("Strands agent initialized with MockModel.")
+print("Strands agent initialized with EchoModel.")
 print("Sending GenAI telemetry every 5 seconds...")
 
 
@@ -56,23 +56,23 @@ print("Sending GenAI telemetry every 5 seconds...")
 
 while True:
 
-    # Create parent GenAI span (Splunk semantic conventions)
     with tracer.start_as_current_span(
         "gen_ai.request",
         attributes={
             "gen_ai.system": "strands",
             "gen_ai.operation.name": "invoke",
-            "gen_ai.request.model": "mock-model",
+            "gen_ai.request.model": "echo-model",
             "gen_ai.request.type": "completion"
         }
     ) as span:
 
-        print("Invoking agent...")
-
         try:
-            response = agent(
-                "Explain OpenTelemetry in one sentence."
-            )
+
+            prompt = "Explain OpenTelemetry in one sentence."
+
+            print("Prompt:", prompt)
+
+            response = agent(prompt)
 
             print("Response:", response)
 
