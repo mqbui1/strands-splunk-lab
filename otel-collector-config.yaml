@@ -2,17 +2,21 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
       http:
+        endpoint: 0.0.0.0:4318
 
 exporters:
-  logging:
-    loglevel: debug
+  splunk_hec:
+    token: "${SPLUNK_ACCESS_TOKEN}"
+    realm: "${SPLUNK_REALM}"
+    source: "strands-agent"
+    sourcetype: "_json"
+
+  debug: {}  # replaces deprecated logging exporter
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [logging]
-    metrics:
-      receivers: [otlp]
-      exporters: [logging]
+      exporters: [splunk_hec, debug]
