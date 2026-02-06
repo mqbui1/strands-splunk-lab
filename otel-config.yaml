@@ -9,7 +9,7 @@ receivers:
 exporters:
   splunk_hec:
     token: "${SPLUNK_ACCESS_TOKEN}"      # token from env
-    endpoint: "https://ingest.us1.signalfx.com/v2/trace"
+    endpoint: "https://ingest.us1.signalfx.com/v1/trace"
     source: "strands-agent"
     sourcetype: "_json"
 
