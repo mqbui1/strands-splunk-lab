@@ -19,3 +19,5 @@ services:
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
       OTEL_SERVICE_NAME: "strands-agent"
+      SPLUNK_REALM: us1
+      SPLUNK_ACCESS_TOKEN: 6Fmh2CKA_RYqrMTT1I2E0A
