@@ -2,7 +2,6 @@ import time
 import os
 
 from strands import Agent
-from strands.models.echo import EchoModel
 
 # OpenTelemetry imports
 from opentelemetry import trace
@@ -38,16 +37,15 @@ tracer = trace.get_tracer("strands-agent-demo")
 
 
 # ----------------------------
-# Create agent using EchoModel
+# Create agent WITHOUT specifying model
 # ----------------------------
 
 agent = Agent(
-    name="splunk-strands-agent",
-    model=EchoModel()
+    name="splunk-strands-agent"
 )
 
-print("Strands agent initialized with EchoModel.")
-print("Sending GenAI telemetry every 5 seconds...")
+print("Strands agent initialized.")
+print("Sending telemetry every 5 seconds...")
 
 
 # ----------------------------
@@ -61,26 +59,25 @@ while True:
         attributes={
             "gen_ai.system": "strands",
             "gen_ai.operation.name": "invoke",
-            "gen_ai.request.model": "echo-model",
+            "gen_ai.request.model": "default",
             "gen_ai.request.type": "completion"
         }
     ) as span:
 
         try:
 
-            prompt = "Explain OpenTelemetry in one sentence."
+            prompt = "Hello from Strands agent telemetry demo"
 
-            print("Prompt:", prompt)
+            print("Invoking agent...")
 
-            response = agent(prompt)
-
-            print("Response:", response)
+            # Call agent safely
+            agent(prompt)
 
             span.set_attribute("gen_ai.response.success", True)
 
         except Exception as e:
 
-            print("Error:", str(e))
+            print("Agent error (expected in demo mode):", str(e))
 
             span.set_attribute("gen_ai.response.success", False)
             span.record_exception(e)
