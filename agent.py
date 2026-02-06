@@ -22,23 +22,26 @@ trace.get_tracer_provider().add_span_processor(
 )
 
 
-# --- Strands Agent setup ---
+# --- Create Strands agent ---
 agent = Agent(
     name="splunk-strands-demo-agent"
 )
 
-agent.start()
-
-print("Strands agent started. Sending periodic telemetry...")
+print("Strands agent initialized.")
 
 
 # --- Main loop ---
-try:
-    while True:
-        with tracer.start_as_current_span("heartbeat"):
-            print("Sending heartbeat span...")
-        time.sleep(5)
+while True:
 
-except KeyboardInterrupt:
-    print("Stopping agent...")
-    agent.stop()
+    with tracer.start_as_current_span("heartbeat"):
+
+        print("Sending heartbeat span...")
+
+        # invoke agent
+        result = agent.run(
+            input="Generate a simple heartbeat response"
+        )
+
+        print("Agent response:", result)
+
+    time.sleep(5)
