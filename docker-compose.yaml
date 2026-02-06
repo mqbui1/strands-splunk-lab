@@ -4,20 +4,25 @@ services:
   otel-collector:
     image: otel/opentelemetry-collector-contrib:0.144.0
     container_name: otel-collector
-    command: ["--config=/etc/otel-config.yaml"]
     volumes:
-      - ./otel-config.yaml:/etc/otel-config.yaml:ro
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    environment:
+      SPLUNK_REALM: us1               # <-- your Splunk Observability Cloud realm
+      SPLUNK_ACCESS_TOKEN: "6Fmh2CKA_RYqrMTT1I2E0A"  # <-- your token
     ports:
-      - "4317:4317"
-      - "4318:4318"
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
 
   strands-agent:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        GITHUB_TOKEN: $GITHUB_TOKEN
     container_name: strands-agent
-    depends_on:
-      - otel-collector
     environment:
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
-      OTEL_SERVICE_NAME: "strands-agent"
-      SPLUNK_REALM: us1
-      SPLUNK_ACCESS_TOKEN: 6Fmh2CKA_RYqrMTT1I2E0A
+      OTEL_EXPORTER_OTLP_INSECURE: "true"
+    depends_on:
+      - otel-collector
