@@ -25,7 +25,7 @@ trace.get_tracer_provider().add_span_processor(
 
 
 # ----------------------------
-# Create Strands agent
+# Create agent
 # ----------------------------
 agent = Agent(
     name="splunk-strands-demo-agent"
@@ -35,7 +35,7 @@ print("Strands agent initialized.")
 
 
 # ----------------------------
-# Main loop (keeps container alive)
+# Main loop
 # ----------------------------
 while True:
 
@@ -43,10 +43,8 @@ while True:
 
         print("Sending heartbeat span...")
 
-        response = agent.invoke(
-            {
-                "input": "Hello from Splunk + Strands OTEL demo"
-            }
+        response = agent(
+            message="Hello from Splunk + Strands OTEL demo"
         )
 
         print("Agent response:", response)
