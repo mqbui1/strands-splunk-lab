@@ -8,7 +8,9 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 from strands import Agent
 
 
-# --- OpenTelemetry setup ---
+# ----------------------------
+# OpenTelemetry setup
+# ----------------------------
 trace.set_tracer_provider(TracerProvider())
 tracer = trace.get_tracer(__name__)
 
@@ -22,7 +24,9 @@ trace.get_tracer_provider().add_span_processor(
 )
 
 
-# --- Create Strands agent ---
+# ----------------------------
+# Create Strands agent
+# ----------------------------
 agent = Agent(
     name="splunk-strands-demo-agent"
 )
@@ -30,18 +34,21 @@ agent = Agent(
 print("Strands agent initialized.")
 
 
-# --- Main loop ---
+# ----------------------------
+# Main loop (keeps container alive)
+# ----------------------------
 while True:
 
     with tracer.start_as_current_span("heartbeat"):
 
         print("Sending heartbeat span...")
 
-        # invoke agent
-        result = agent.run(
-            input="Generate a simple heartbeat response"
+        response = agent.invoke(
+            {
+                "input": "Hello from Splunk + Strands OTEL demo"
+            }
         )
 
-        print("Agent response:", result)
+        print("Agent response:", response)
 
     time.sleep(5)
