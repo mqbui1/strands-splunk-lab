@@ -20,3 +20,6 @@ ARG GITHUB_TOKEN
 RUN git clone https://$GITHUB_TOKEN@github.com/strands-agents/sdk-python.git /tmp/strands && \
     pip install /tmp/strands && \
     rm -rf /tmp/strands
+
+# after installing everything
+CMD ["python", "agent.py"]
