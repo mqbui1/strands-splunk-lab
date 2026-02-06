@@ -7,12 +7,18 @@ receivers:
         endpoint: 0.0.0.0:4318
 
 exporters:
-  splunk_hec:
-    token: "${SPLUNK_ACCESS_TOKEN}"
-    # Construct the full HEC endpoint URL
-    endpoint: "https://ingest.us1.signalfx.com/v1/trace"  # change region as needed
-    source: "strands-agent"
-    sourcetype: "_json"
+  # splunk_hec:
+  #   token: "${SPLUNK_ACCESS_TOKEN}"
+  #   endpoint: "https://ingest.us1.signalfx.com/v1/trace"  # change region as needed
+  #   source: "strands-agent"
+  #   sourcetype: "_json"
+
+  otlp_http:
+    traces_endpoint: "https://ingest.us1.signalfx.com/v2/trace/otlp"
+    headers:
+      "X-SF-Token": "${SPLUNK_ACCESS_TOKEN}"
+    auth:
+      authenticator: headers_setter
 
   debug: {}  # optional, replaces old logging exporter
 
@@ -20,4 +26,4 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [splunk_hec, debug]
+      exporters: [otlp_http, debug]
