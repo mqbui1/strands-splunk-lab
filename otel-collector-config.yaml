@@ -9,11 +9,12 @@ receivers:
 exporters:
   splunk_hec:
     token: "${SPLUNK_ACCESS_TOKEN}"
-    realm: "${SPLUNK_REALM}"
+    # Construct the full HEC endpoint URL
+    endpoint: "https://ingest.us1.signalfx.com/v2/trace"  # change region as needed
     source: "strands-agent"
     sourcetype: "_json"
 
-  debug: {}  # replaces deprecated logging exporter
+  debug: {}  # optional, replaces old logging exporter
 
 service:
   pipelines:
