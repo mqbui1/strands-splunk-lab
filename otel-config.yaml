@@ -6,20 +6,17 @@ receivers:
       http:
         endpoint: 0.0.0.0:4318
 
-processors:
-  batch:
-
 exporters:
-  debug:
-    verbosity: detailed
-  otlp/splunk:
-    endpoint: "https://ingest.${SPLUNK_REALM}.signalfx.com:443"
-    headers:
-      X-SF-TOKEN: "${SPLUNK_ACCESS_TOKEN}"
+  splunk_hec:
+    token: "${SPLUNK_ACCESS_TOKEN}"      # token from env
+    endpoint: "https://ingest.us1.signalfx.com/v2/trace"
+    source: "strands-agent"
+    sourcetype: "_json"
+
+  debug: {}  # just prints spans for testing
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      processors: [batch]
-      exporters: [debug, otlp/splunk]
+      exporters: [debug, splunk_hec]
