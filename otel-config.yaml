@@ -2,24 +2,23 @@ receivers:
   otlp:
     protocols:
       grpc:
+        endpoint: 0.0.0.0:4317
       http:
+        endpoint: 0.0.0.0:4318
 
 processors:
   batch:
 
 exporters:
-
   debug:
     verbosity: detailed
-
   otlp/splunk:
-    endpoint: https://ingest.${SPLUNK_REALM}.signalfx.com:443
+    endpoint: "https://ingest.${SPLUNK_REALM}.signalfx.com:443"
     headers:
-      X-SF-TOKEN: ${SPLUNK_ACCESS_TOKEN}
+      X-SF-TOKEN: "${SPLUNK_ACCESS_TOKEN}"
 
 service:
   pipelines:
-
     traces:
       receivers: [otlp]
       processors: [batch]
