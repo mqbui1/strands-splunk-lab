@@ -19,6 +19,10 @@ os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://otel-collector:4317"
 os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = "grpc"
 os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = "true"
 
+# Disable AWS / Bedrock completely (mandatory for local/mock)
+os.environ["STRANDS_DISABLE_AWS"] = "true"
+os.environ["STRANDS_DISABLE_BEDROCK"] = "true"
+
 # Optional: increase debug visibility
 os.environ["OTEL_LOG_LEVEL"] = "debug"
 
@@ -31,14 +35,12 @@ strands_telemetry.setup_otlp_exporter()
 strands_telemetry.setup_console_exporter()
 
 # ----------------------------
-# Create agent (mock model + disable AWS/Bedrock)
+# Create agent (mock model only)
 # ----------------------------
 
 agent = Agent(
     name="splunk-strands-agent",
-    model="mock",
-    disable_aws=True,       # ✅ disables all AWS / Bedrock calls
-    disable_bedrock=True    # ✅ disables any internal Bedrock client
+    model="mock"
 )
 
 print("Strands agent initialized.")
