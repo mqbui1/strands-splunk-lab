@@ -3,41 +3,54 @@ import os
 
 from strands import Agent
 from strands.telemetry import StrandsTelemetry
-
-from opentelemetry.sdk.resources import Resource
+from strands.models.mock import MockModel
 
 # ----------------------------
 # REQUIRED: Service identity
 # ----------------------------
 
 os.environ["OTEL_SERVICE_NAME"] = "splunk-strands-agent"
-os.environ["OTEL_RESOURCE_ATTRIBUTES"] = "deployment.environment=demo,service.version=1.0"
 
-# OTLP endpoint (your collector)
+os.environ["OTEL_RESOURCE_ATTRIBUTES"] = (
+    "deployment.environment=demo,"
+    "service.version=1.0"
+)
+
+# ----------------------------
+# OTLP exporter configuration
+# ----------------------------
+
+# Your Splunk OTel Collector (gRPC)
 os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://otel-collector:4317"
+os.environ["OTEL_EXPORTER_OTLP_PROTOCOL"] = "grpc"
 os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = "true"
+
+# Disable AWS / Bedrock completely
 os.environ["STRANDS_DISABLE_AWS"] = "true"
 os.environ["STRANDS_DISABLE_BEDROCK"] = "true"
 
+# Optional: increase debug visibility
+os.environ["OTEL_LOG_LEVEL"] = "debug"
+
 # ----------------------------
-# Initialize Strands telemetry
+# Initialize telemetry
 # ----------------------------
 
 strands_telemetry = StrandsTelemetry()
 
-# Sends telemetry to collector
+# Send to collector → Splunk Observability Cloud
 strands_telemetry.setup_otlp_exporter()
 
-# Shows telemetry locally in console
+# Print spans locally (VERY useful for debugging)
 strands_telemetry.setup_console_exporter()
 
 # ----------------------------
-# Create agent
+# Create agent (FIXED)
 # ----------------------------
 
 agent = Agent(
     name="splunk-strands-agent",
-    model="mock"
+    model=MockModel()   # ✅ THIS FIXES AWS CREDENTIAL ERRORS
 )
 
 print("Strands agent initialized.")
@@ -57,7 +70,7 @@ while True:
 
         response = agent(prompt)
 
-        print(response)
+        print("Response:", response)
 
     except Exception as e:
 
