@@ -19,7 +19,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://otel-collector:4317"
 strands_telemetry = StrandsTelemetry()
 strands_telemetry.setup_otlp_exporter()      # Send traces to OTLP endpoint
-strands_telemetry.setup_console_exporter() 
+strands_telemetry.setup_console_exporter()
 
 # resource = Resource.create({
 #     "service.name": "strands-agent",
@@ -53,39 +53,39 @@ agent = Agent(
 print("Strands agent initialized.")
 print("Sending telemetry every 5 seconds...")
 
-
 # ----------------------------
 # Main loop
 # ----------------------------
 
-# while True:
+while True:
 
-#     with tracer.start_as_current_span(
-#         "gen_ai.request",
-#         attributes={
-#             "gen_ai.system": "strands",
-#             "gen_ai.operation.name": "invoke",
-#             "gen_ai.request.model": "default",
-#             "gen_ai.request.type": "completion"
-#         }
-#     ) as span:
+    # with tracer.start_as_current_span(
+    #     "gen_ai.request",
+    #     attributes={
+    #         "gen_ai.system": "strands",
+    #         "gen_ai.operation.name": "invoke",
+    #         "gen_ai.request.model": "default",
+    #         "gen_ai.request.type": "completion"
+    #     }
+    # ) as span:
 
-#         try:
+        try:
 
-#             prompt = "Hello from Strands agent telemetry demo"
+            prompt = "Hello from Strands agent telemetry demo"
 
-#             print("Invoking agent...")
+            print("Invoking agent...")
 
-#             # Call agent safely
-#             agent(prompt)
+            # Call agent safely
+            response = agent(prompt)
+            print(response)
+            
+            # span.set_attribute("gen_ai.response.success", True)
 
-#             span.set_attribute("gen_ai.response.success", True)
+        except Exception as e:
 
-#         except Exception as e:
+            print("Agent error (expected in demo mode):", str(e))
 
-#             print("Agent error (expected in demo mode):", str(e))
+            # span.set_attribute("gen_ai.response.success", False)
+            # span.record_exception(e)
 
-#             span.set_attribute("gen_ai.response.success", False)
-#             span.record_exception(e)
-
-#     time.sleep(5)
+    time.sleep(5)
