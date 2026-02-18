@@ -1,18 +1,20 @@
+# strands-agent Dockerfile
 FROM python:3.11-slim
 
+# Set working directory
 WORKDIR /app
 
-RUN apt-get update && \
-    apt-get install -y build-essential git && \
-    rm -rf /var/lib/apt/lists/*
+# Copy requirements first (for caching)
+COPY requirements.txt .
 
-COPY agent.py .
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Python packages: OpenTelemetry + Strands SDK from GitHub
-ARG GITHUB_TOKEN
-RUN pip install --no-cache-dir \
-    opentelemetry-sdk \
-    opentelemetry-exporter-otlp \
-    "strands-agents @ git+https://${GITHUB_TOKEN}@github.com/strands-agents/sdk-python.git"
+# Copy local code into container
+COPY . /app
 
+# Ensure Python can find your code
+ENV PYTHONPATH=/app:$PYTHONPATH
+
+# Default command
 CMD ["python", "agent.py"]
