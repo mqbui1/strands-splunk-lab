@@ -1,7 +1,6 @@
 import time
 import os
 
-from strands import Agent
 from strands.telemetry import StrandsTelemetry
 
 # ----------------------------
@@ -35,15 +34,21 @@ strands_telemetry.setup_otlp_exporter()
 strands_telemetry.setup_console_exporter()
 
 # ----------------------------
-# Create agent (mock model only)
+# Mock agent implementation
 # ----------------------------
 
-agent = Agent(
-    name="splunk-strands-agent",
-    model="mock"
-)
+class MockAgent:
+    def __init__(self, name="mock-agent"):
+        self.name = name
 
-print("Strands agent initialized.")
+    def __call__(self, prompt):
+        # Always return a predictable mock response
+        return f"[MOCK RESPONSE] Received prompt: '{prompt}'"
+
+# Create mock agent
+agent = MockAgent(name="splunk-strands-agent")
+
+print("Strands agent (mock) initialized.")
 print("Sending telemetry every 5 seconds...")
 
 # ----------------------------
