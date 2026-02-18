@@ -5,7 +5,7 @@ from strands import Agent
 from strands.telemetry import StrandsTelemetry
 
 # ----------------------------
-# Logging (console debug)
+# Logging
 # ----------------------------
 
 logging.basicConfig(
@@ -16,26 +16,23 @@ logging.basicConfig(
 logger = logging.getLogger("strands-demo")
 
 # ----------------------------
-# Telemetry setup
+# Telemetry
 # ----------------------------
 
 telemetry = StrandsTelemetry()
 
-# sends traces to OTLP collector
 telemetry.setup_otlp_exporter()
-
-# prints spans to console
 telemetry.setup_console_exporter()
 
 logger.info("Telemetry initialized")
 
 # ----------------------------
-# Create real agent (mock model)
+# Create agent
 # ----------------------------
 
 agent = Agent(
     name="splunk-strands-agent",
-    model="mock"   # works without AWS / OpenAI
+    model="mock"
 )
 
 logger.info("Agent initialized")
@@ -50,13 +47,13 @@ while True:
 
         logger.debug("Invoking agent")
 
-        response = agent.invoke(
+        response = agent(
             "Hello from Strands telemetry demo"
         )
 
         logger.debug("Agent response: %s", response)
 
-    except Exception as e:
+    except Exception:
 
         logger.exception("Agent invocation failed")
 
