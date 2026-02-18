@@ -1,25 +1,21 @@
+# Use slim Python 3.11
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install git and build tools
+# Install system dependencies
 RUN apt-get update && \
-    apt-get install -y git build-essential && \
+    apt-get install -y build-essential git && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy app
+# Copy the agent code
 COPY agent.py .
 
-# Install OpenTelemetry
-RUN pip install --no-cache-dir opentelemetry-sdk opentelemetry-exporter-otlp
+# Install Python packages: OpenTelemetry + Strands SDK (release with real agents)
+RUN pip install --no-cache-dir \
+    opentelemetry-sdk \
+    opentelemetry-exporter-otlp \
+    strands-agents==1.26.0
 
-# Install Strands SDK via HTTPS with token
-# Replace YOUR_GITHUB_TOKEN with a token that has repo access
-# Install Strands SDK from GitHub
-ARG GITHUB_TOKEN
-RUN git clone https://$GITHUB_TOKEN@github.com/strands-agents/sdk-python.git /tmp/strands && \
-    pip install /tmp/strands && \
-    rm -rf /tmp/strands
-
-# after installing everything
+# Run the agent
 CMD ["python", "agent.py"]
