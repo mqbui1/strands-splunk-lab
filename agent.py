@@ -16,6 +16,8 @@ os.environ["OTEL_RESOURCE_ATTRIBUTES"] = "deployment.environment=demo,service.ve
 # OTLP endpoint (your collector)
 os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://otel-collector:4317"
 os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = "true"
+os.environ["STRANDS_DISABLE_AWS"] = "true"
+os.environ["STRANDS_DISABLE_BEDROCK"] = "true"
 
 # ----------------------------
 # Initialize Strands telemetry
