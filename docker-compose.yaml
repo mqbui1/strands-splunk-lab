@@ -8,7 +8,7 @@ services:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
     command: ["--config=/etc/otel-collector-config.yaml"]
     environment:
-      - SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}   # pass token to collector
+      - SPLUNK_ACCESS_TOKEN=${SPLUNK_ACCESS_TOKEN}
     ports:
       - "4317:4317"  # OTLP gRPC
       - "4318:4318"  # OTLP HTTP
@@ -17,10 +17,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        GITHUB_TOKEN: ${GITHUB_TOKEN}
     environment:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_EXPORTER_OTLP_INSECURE=true
+      - OTEL_SERVICE_NAME=splunk-strands-agent
+      - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=demo,service.version=1.0
+      - STRANDS_DISABLE_AWS=true
+      - STRANDS_DISABLE_BEDROCK=true
+      - OTEL_LOG_LEVEL=debug
     depends_on:
       - otel-collector
