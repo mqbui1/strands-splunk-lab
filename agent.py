@@ -1,23 +1,22 @@
-import time
 import logging
-
-from strands import Agent
-from strands.telemetry import StrandsTelemetry
-
 logging.basicConfig(level=logging.DEBUG)
 
-telemetry = StrandsTelemetry()
-telemetry.setup_otlp_exporter()
-telemetry.setup_console_exporter()
+from strands import Agent
+from strands.models.echo import EchoModel
+
+import strands.telemetry as strands_telemetry
+
+# Send traces to OTEL collector
+strands_telemetry.setup_otlp_exporter()
+
+# Use EchoModel (NO AWS REQUIRED)
+model = EchoModel()
 
 agent = Agent(
     name="splunk-strands-agent",
-    model="echo"   # ← THIS WORKS in your installed version
+    model=model
 )
 
-print("Agent initialized using echo model")
+response = agent("Hello from Strands telemetry demo")
 
-while True:
-    response = agent("Hello from Strands telemetry demo")
-    print("Response:", response)
-    time.sleep(5)
+print("Response:", response)
