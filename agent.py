@@ -4,46 +4,33 @@ import os
 from strands import Agent
 from strands.telemetry import StrandsTelemetry
 
-# OpenTelemetry imports
-from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
-from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
-
 
 # ----------------------------
-# OpenTelemetry setup
+# REQUIRED: Service identity
 # ----------------------------
 
+os.environ["OTEL_SERVICE_NAME"] = "splunk-strands-agent"
+os.environ["OTEL_RESOURCE_ATTRIBUTES"] = "deployment.environment=demo,service.version=1.0"
+
+# OTLP endpoint (your collector)
 os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://otel-collector:4317"
+os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = "true"
+
+# ----------------------------
+# Initialize Strands telemetry
+# ----------------------------
+
 strands_telemetry = StrandsTelemetry()
-strands_telemetry.setup_otlp_exporter()      # Send traces to OTLP endpoint
+
+# Sends telemetry to collector
+strands_telemetry.setup_otlp_exporter()
+
+# Shows telemetry locally in console
 strands_telemetry.setup_console_exporter()
 
-# resource = Resource.create({
-#     "service.name": "strands-agent",
-#     "service.version": "1.0.0",
-#     "deployment.environment": "demo"
-# })
-
-# provider = TracerProvider(resource=resource)
-
-# otlp_exporter = OTLPSpanExporter(
-#     endpoint=os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://otel-collector:4317"),
-#     insecure=True,
-# )
-
-# processor = BatchSpanProcessor(otlp_exporter)
-# provider.add_span_processor(processor)
-
-# trace.set_tracer_provider(provider)
-
-# tracer = trace.get_tracer("strands-agent-demo")
-
-
 # ----------------------------
-# Create agent WITHOUT specifying model
+# Create agent
 # ----------------------------
 
 agent = Agent(
@@ -59,33 +46,18 @@ print("Sending telemetry every 5 seconds...")
 
 while True:
 
-    # with tracer.start_as_current_span(
-    #     "gen_ai.request",
-    #     attributes={
-    #         "gen_ai.system": "strands",
-    #         "gen_ai.operation.name": "invoke",
-    #         "gen_ai.request.model": "default",
-    #         "gen_ai.request.type": "completion"
-    #     }
-    # ) as span:
+    try:
 
-        try:
+        prompt = "Hello from Strands agent telemetry demo"
 
-            prompt = "Hello from Strands agent telemetry demo"
+        print("Invoking agent...")
 
-            print("Invoking agent...")
+        response = agent(prompt)
 
-            # Call agent safely
-            response = agent(prompt)
-            print(response)
-            
-            # span.set_attribute("gen_ai.response.success", True)
+        print(response)
 
-        except Exception as e:
+    except Exception as e:
 
-            print("Agent error (expected in demo mode):", str(e))
-
-            # span.set_attribute("gen_ai.response.success", False)
-            # span.record_exception(e)
+        print("Agent error:", str(e))
 
     time.sleep(5)
