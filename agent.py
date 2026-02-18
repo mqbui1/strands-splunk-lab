@@ -34,7 +34,8 @@ strands_telemetry.setup_console_exporter()
 # ----------------------------
 
 agent = Agent(
-    name="splunk-strands-agent"
+    name="splunk-strands-agent",
+    model="mock"
 )
 
 print("Strands agent initialized.")
