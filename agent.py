@@ -3,7 +3,6 @@ import logging
 
 from strands import Agent
 from strands.telemetry import StrandsTelemetry
-from strands.models.mock import MockModel
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -13,10 +12,12 @@ telemetry.setup_console_exporter()
 
 agent = Agent(
     name="splunk-strands-agent",
-    model=MockModel()
+    model="echo"   # ← THIS WORKS in your installed version
 )
+
+print("Agent initialized using echo model")
 
 while True:
     response = agent("Hello from Strands telemetry demo")
-    print(response)
+    print("Response:", response)
     time.sleep(5)
