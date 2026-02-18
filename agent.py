@@ -1,46 +1,27 @@
-import os
-import time
 import logging
+import time
+
 from strands.telemetry import StrandsTelemetry
-from strands.agents import ChatCompletion  # real agent
+from strands import Agent
 
-# ----------------------------
-# Logging setup
-# ----------------------------
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger("splunk-strands-agent")
+# Logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger("strands-demo")
 
-# ----------------------------
-# Telemetry setup
-# ----------------------------
-os.environ["OTEL_SERVICE_NAME"] = "splunk-strands-agent"
-os.environ["OTEL_RESOURCE_ATTRIBUTES"] = "deployment.environment=demo,service.version=1.0"
-os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://otel-collector:4317"
-os.environ["OTEL_EXPORTER_OTLP_INSECURE"] = "true"
-os.environ["OTEL_LOG_LEVEL"] = "debug"
-
+# Telemetry
 strands_telemetry = StrandsTelemetry()
-strands_telemetry.setup_otlp_exporter()      # Send traces to OTLP endpoint
-strands_telemetry.setup_console_exporter()   # Optional console debug logs
+strands_telemetry.setup_otlp_exporter()
+strands_telemetry.setup_console_exporter()
 
-# ----------------------------
-# Real agent setup
-# ----------------------------
-agent = ChatCompletion(model="mock")  # or "openai:gpt-4o" if you have credentials
+# Real agent
+agent = Agent(model="mock")
 
-logger.info("Strands agent initialized and ready.")
+logger.info("Strands agent initialized.")
 
-# ----------------------------
-# Main loop
-# ----------------------------
 while True:
     try:
-        prompt = "Hello from Strands agent telemetry demo"
         logger.debug("Invoking agent...")
-        response = agent(prompt)
+        response = agent.invoke("Hello from Strands telemetry demo")
         logger.debug("Response: %s", response)
 
     except Exception as e:
