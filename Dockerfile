@@ -8,11 +8,11 @@ RUN apt-get update && \
 
 COPY agent.py .
 
+# Install Python packages: OpenTelemetry + Strands SDK from GitHub
 ARG GITHUB_TOKEN
-
 RUN pip install --no-cache-dir \
     opentelemetry-sdk \
     opentelemetry-exporter-otlp \
-    "strands-agents @ git+https://${GITHUB_TOKEN}@github.com/strands-agents/strands-agents.git"
+    "strands-agents @ git+https://${GITHUB_TOKEN}@github.com/strands-agents/sdk-python.git"
 
 CMD ["python", "agent.py"]
