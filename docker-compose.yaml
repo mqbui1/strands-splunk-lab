@@ -22,5 +22,8 @@ services:
       - OTEL_EXPORTER_OTLP_INSECURE=true
       - OTEL_SERVICE_NAME=splunk-strands-agent
       - OTEL_RESOURCE_ATTRIBUTES=deployment.environment=demo,service.version=1.0
+      - STRANDS_MODEL_PROVIDER=mock
+      - STRANDS_DISABLE_BEDROCK=true
+      - STRANDS_DISABLE_AWS=true
     depends_on:
       - otel-collector
